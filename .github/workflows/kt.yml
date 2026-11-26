@@ -12,7 +12,7 @@ jobs:
           python-version: "3.10"
       - run: |
           pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
-          pip install transformers huggingface_hub onnx onnxruntime numpy loguru onnxscript
+          pip install transformers huggingface_hub onnx onnxruntime numpy loguru onnxscript attrs kokoro misaki espeakng-loader
       - run: python export.py
       - run: |
           gh release create kt-onnx out/* --title kt-onnx --notes "KemeTone ONNX export test" || gh release upload kt-onnx out/* --clobber
