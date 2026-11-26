@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KemeTone - تجربة صوت مصري</title>
+<style>
+body{font-family:system-ui,Segoe UI,Tahoma,sans-serif;background:#0f1115;color:#e8e8ea;margin:0;padding:16px;max-width:680px;margin-inline:auto;line-height:1.7}
+h1{font-size:20px;margin:4px 0 2px} .sub{color:#9aa;font-size:13px;margin-bottom:12px}
+textarea,input,select{width:100%;box-sizing:border-box;background:#1a1d24;color:#fff;border:1px solid #333a47;border-radius:10px;padding:10px;font-size:17px;font-family:inherit}
+textarea{min-height:130px} button{background:#3b82f6;color:#fff;border:0;border-radius:10px;padding:11px 16px;font-size:16px;margin:4px 3px 4px 0;font-family:inherit}
+button.s{background:#2a303c} button:disabled{opacity:.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.box{background:#171a21;border:1px solid #262c38;border-radius:12px;padding:10px;margin:10px 0;font-size:13px;color:#b8c0cc}
+#log{white-space:pre-wrap;direction:ltr;text-align:left;font-family:monospace;font-size:12px;max-height:240px;overflow:auto}
+.bar{height:6px;background:#262c38;border-radius:4px;overflow:hidden}.bar>i{display:block;height:100%;width:0;background:#3b82f6}
+label{font-size:13px;color:#9aa}
+</style></head><body>
+<h1>KemeTone - صوت مصري (تجربة)</h1>
+<div class="sub">نموذج مفتوح المصدر 82M، يشتغل كله على الجهاز بعد التحميل الأول. صفحة تجربة فقط.</div>
+<div class="box"><div id="st">الحالة: لم يتم التحميل</div><div class="bar"><i id="pb"></i></div>
+<div class="row"><select id="be" style="width:auto"><option value="wasm">CPU (wasm)</option><option value="webgpu">GPU (webgpu) تجريبي</option></select>
+<button id="load">تحميل النموذج (~164 ميجا)</button></div></div>
+<label>النص (الأفضل بالتشكيل المصري)</label>
+<textarea id="tx">أَنَا بَحِبّ الْأَكْل الْمَصْرِي أَوِي، وِمَامْتِي بِتِعْمِل مَحْشِي وِمُلُوخِيَّة كُلّ يُوم جُمْعَة.</textarea>
+<div class="row"><button id="say" disabled>انطق</button><button class="s" id="stop">إيقاف</button>
+<button class="s" id="s1">مثال 1</button><button class="s" id="s2">مثال 2</button><button class="s" id="s3">مثال 3</button></div>
+<div class="box"><label>تشكيل تلقائي بـ Gemini (اختياري). الصق مفتاحك هنا، بيتخزن على جهازك بس.</label>
+<input id="gk" type="password" placeholder="Gemini API key" autocomplete="off">
+<div class="row"><button class="s" id="tash">شكّل النص بالمصري</button></div></div>
+<div class="box" id="stats">-</div>
+<div class="box" id="log"></div>
+<script src="coi-serviceworker.min.js"></script>
+<script type="module" src="app.js"></script>
+</body></html>
