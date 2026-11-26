@@ -1,0 +1,55 @@
+name: pages
+on: workflow_dispatch
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: build
+        run: |
+          set -e
+          B=https://raw.githubusercontent.com/Oddadmix/nabra-tts/main/src
+          mkdir -p src/g2p src/vendor site/ort
+          for f in g2p/arabic.ts g2p/espeak.ts g2p/punctuation.ts vendor/espeak-ng-ar.mjs vendor/espeak-ng-ar.d.mts; do curl -fsSL $B/$f -o src/$f; done
+          curl -fsSL $B/vocab.ts -o src/vocab.ts
+          cp src/kt_g2p.js src/kt_g2p.js.bak
+          python3 - <<'PY'
+          import json,urllib.request,urllib.parse
+          H="https://huggingface.co/Rabe3/kemetone/resolve/main/"
+          lex={}
+          for ch in "قثذظ":
+              t=urllib.request.urlopen(H+"kemetone/lexicons/"+urllib.parse.quote(ch)+".tsv").read().decode()
+              s=set()
+              for l in t.splitlines():
+                  l=l.split("#",1)[0].strip()
+                  if l: s.add(l.split("\t",1)[0])
+              lex[ch]=sorted(s)
+          c=json.loads(urllib.request.urlopen(H+"config.json").read())
+          open("src/data.js","w",encoding="utf-8").write("export const LEX="+json.dumps(lex,ensure_ascii=False)+";\nexport const VOCAB="+json.dumps(c["vocab"],ensure_ascii=False)+";\n")
+          print({k:len(v) for k,v in lex.items()},len(c["vocab"]))
+          PY
+          npm init -y >/dev/null
+          npm i onnxruntime-web esbuild coi-serviceworker
+          npx esbuild src/kt_g2p.js --bundle --format=esm --minify --external:node:* --outfile=site/g2p.js
+          D=node_modules/onnxruntime-web/dist
+          cp $D/ort.wasm.min.mjs $D/ort-wasm-simd-threaded.mjs $D/ort-wasm-simd-threaded.wasm $D/ort.webgpu.min.mjs $D/ort-wasm-simd-threaded.jsep.mjs $D/ort-wasm-simd-threaded.jsep.wasm site/ort/
+          cp node_modules/coi-serviceworker/coi-serviceworker.min.js site/
+          gh release download kt-onnx -p kt_fp16.onnx -p voice.bin -D site/
+          ls -la site
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
